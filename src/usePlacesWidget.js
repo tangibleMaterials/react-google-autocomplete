@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
 
 import { loadGoogleMapScript, isBrowser } from "./utils";
 import { GOOGLE_MAP_SCRIPT_BASE_URL } from "./constants";
@@ -32,10 +32,11 @@ export default function usePlacesWidget(props) {
   const languageQueryParam = language ? `&language=${language}` : "";
   const googleMapsScriptUrl = `${googleMapsScriptBaseUrl}?libraries=${libraries}&key=${apiKey}${languageQueryParam}`;
 
-  const handleLoadScript = useCallback(
-    () => loadGoogleMapScript(googleMapsScriptBaseUrl, googleMapsScriptUrl),
-    [googleMapsScriptBaseUrl, googleMapsScriptUrl]
-  );
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  const handleLoadScript = useCallback(async () => {
+    await loadGoogleMapScript(googleMapsScriptBaseUrl, googleMapsScriptUrl);
+    setIsScriptLoaded(true);
+  }, [googleMapsScriptBaseUrl, googleMapsScriptUrl]);
 
   useEffect(() => {
     const config = {
@@ -69,9 +70,9 @@ export default function usePlacesWidget(props) {
         inputRef.current,
         config
       );
-      
-      if(autocompleteRef.current) {
-         event.current = autocompleteRef.current.addListener(
+
+      if (autocompleteRef.current) {
+        event.current = autocompleteRef.current.addListener(
           "place_changed",
           () => {
             if (onPlaceSelected && autocompleteRef && autocompleteRef.current) {
@@ -146,5 +147,6 @@ export default function usePlacesWidget(props) {
   return {
     ref: inputRef,
     autocompleteRef,
+    isScriptLoaded,
   };
 }

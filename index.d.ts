@@ -30,4 +30,5 @@ export function usePlacesWidget<T = null>(
 ): {
   ref: RefObject<T>;
   autocompleteRef: RefObject<google.maps.places.Autocomplete>;
+  isScriptLoaded: boolean;
 };

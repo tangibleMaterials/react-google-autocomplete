@@ -17,6 +17,7 @@ export default function usePlacesAutocompleteService({
   const googleMapsScriptUrl = `${googleMapsScriptBaseUrl}?key=${apiKey}&libraries=${libraries}${languageQueryParam}`;
   const [placePredictions, setPlacePredictions] = useState([]);
   const [isPlacePredsLoading, setIsPlacePredsLoading] = useState(false);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [placeInputValue, setPlaceInputValue] = useState(null);
   const [isQueryPredsLoading, setIsQueryPredsLoading] = useState(false);
   const [queryInputValue, setQueryInputValue] = useState(false);
@@ -24,10 +25,10 @@ export default function usePlacesAutocompleteService({
   const placesAutocompleteService = useRef(null);
   const placesService = useRef(null);
   const autocompleteSession = useRef(null);
-  const handleLoadScript = useCallback(
-    () => loadGoogleMapScript(googleMapsScriptBaseUrl, googleMapsScriptUrl),
-    [googleMapsScriptBaseUrl, googleMapsScriptUrl]
-  );
+  const handleLoadScript = useCallback(async () => {
+    await loadGoogleMapScript(googleMapsScriptBaseUrl, googleMapsScriptUrl);
+    setIsScriptLoaded(true);
+  }, [googleMapsScriptBaseUrl, googleMapsScriptUrl]);
 
   const debouncedPlacePredictions = useCallback(
     debounceFn((optionsArg) => {
@@ -106,6 +107,7 @@ export default function usePlacesAutocompleteService({
     placesAutocompleteService: placesAutocompleteService.current,
     placePredictions: placeInputValue ? placePredictions : [],
     isPlacePredictionsLoading: isPlacePredsLoading,
+    isScriptLoaded,
     getPlacePredictions: (opt) => {
       if (opt.input) {
         setPlaceInputValue(opt.input);

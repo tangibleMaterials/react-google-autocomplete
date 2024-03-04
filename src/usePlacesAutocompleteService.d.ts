@@ -23,6 +23,7 @@ interface usePlacesAutocompleteServiceResponse {
     opt: google.maps.places.QueryAutocompletionRequest
   ) => void;
   refreshSessionToken: () => void;
+  isScriptLoaded: boolean;
 }
 
 export default function usePlacesAutocompleteService(
