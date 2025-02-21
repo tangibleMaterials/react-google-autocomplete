@@ -28,7 +28,6 @@ export default function usePlacesWidget(props) {
   const inputRef = useRef(null);
   const event = useRef(null);
   const autocompleteRef = useRef(null);
-  const observerHack = useRef(null);
   const languageQueryParam = language ? `&language=${language}` : "";
   const googleMapsScriptUrl = `${googleMapsScriptBaseUrl}?libraries=${libraries}&key=${apiKey}${languageQueryParam}`;
 
@@ -100,23 +99,26 @@ export default function usePlacesWidget(props) {
   useEffect(() => {
     // TODO find out why react 18(strict mode) hangs the page loading
     if (
-      !React?.version?.startsWith("18") &&
       isBrowser &&
       window.MutationObserver &&
       inputRef.current &&
       inputRef.current instanceof HTMLInputElement
     ) {
-      observerHack.current = new MutationObserver(() => {
-        observerHack.current.disconnect();
+      const observerHack = new MutationObserver(() => {
+        observerHack.disconnect();
 
         if (inputRef.current) {
           inputRef.current.autocomplete = inputAutocompleteValue;
         }
       });
-      observerHack.current.observe(inputRef.current, {
+      observerHack.observe(inputRef.current, {
         attributes: true,
         attributeFilter: ["autocomplete"],
       });
+
+      return () => {
+        observerHack.disconnect(); // Cleanup
+      };
     }
   }, [inputAutocompleteValue]);
 
